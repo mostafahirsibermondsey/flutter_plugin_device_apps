@@ -88,7 +88,7 @@ class _ListAppsPagesContent extends StatelessWidget {
                                   backgroundColor: Colors.white,
                                 )
                               : null,
-                          onTap: () => DeviceApps.openApp(app.packageName),
+                          onTap: () => DeviceApps.openAppWithAdb('waterrower-connect://freesession/start'),
                           title: Text('${app.appName} (${app.packageName})'),
                           subtitle: Text('Version: ${app.versionName}\n'
                               'System app: ${app.systemApp}\n'

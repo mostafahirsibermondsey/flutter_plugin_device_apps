@@ -98,6 +98,18 @@ class DeviceApps {
     return await _channel
         .invokeMethod('openApp', <String, String>{'package_name': packageName});
   }
+
+  /// Launch an app based on its [action]
+  /// You will then receive in return if the app was opened
+  /// (will be false if the app is not installed, or if no "launcher" intent is
+  /// provided by this app)
+  static Future<bool> openAppWithAdb(String action) async {
+    if (action.isEmpty) {
+      throw Exception('The package name can not be empty');
+    }
+    return await _channel
+        .invokeMethod('openAppWithAdb', <String, String>{'action': action});
+  }
 }
 
 /// An application installed on the device

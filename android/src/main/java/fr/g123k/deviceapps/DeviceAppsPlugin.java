@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,7 +18,10 @@ import android.util.Base64;
 
 import androidx.annotation.NonNull;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +39,7 @@ import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.flutter.view.FlutterNativeView;
 
+import static android.content.Intent.ACTION_VIEW;
 import static fr.g123k.deviceapps.utils.Base64Utils.encodeToBase64;
 import static fr.g123k.deviceapps.utils.DrawableUtils.getBitmapFromDrawable;
 
@@ -107,6 +112,14 @@ public class DeviceAppsPlugin implements
                     result.success(openApp(packageName));
                 }
                 break;
+            case "openAppWithAdb":
+                if (!call.hasArgument("action") || TextUtils.isEmpty(call.argument("action").toString())) {
+                    result.error("ERROR", "Empty or null package name", null);
+                } else {
+                    String action = call.argument("action").toString();
+                    result.success(openAppWithAdb(action));
+                }
+                break;
             default:
                 result.notImplemented();
         }
@@ -149,8 +162,20 @@ public class DeviceAppsPlugin implements
 
     private boolean openApp(@NonNull String packageName) {
         Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-
         // Null pointer check in case package name was not found
+        if (launchIntent != null) {
+            context.startActivity(launchIntent);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean openAppWithAdb(@NonNull String action) {
+        Intent launchIntent = new Intent(ACTION_VIEW);
+        launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        launchIntent.setData(Uri.parse(action));
+//         Null pointer check in case package name was not found
         if (launchIntent != null) {
             context.startActivity(launchIntent);
             return true;
